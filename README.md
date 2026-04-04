@@ -1,20 +1,17 @@
-# SARC Web Portfolio Assignment - Centralized Authentication
+
 
 ## What did I build?
 
 I built two separate Django backends that talk to each other:
 
-**1. Auth Service** (port 8000) - This is the brain of the whole system. It stores all user passwords (hashed), handles login, and generates JWT tokens. No other service is allowed to store passwords.
+**1. Auth Service** (port 8000) - It stores all user passwords (hashed), handles login, and generates JWT tokens. No other service is allowed to store passwords.
 
-**2. Independent Site** (port 8001) - This is a regular website that completely depends on the auth service for login. It never stores passwords or generates tokens on its own. It just asks the auth service "hey, is this token valid?" and if yes, it lets the user in.
+**2. Independent Site** (port 8001) - This is a regular website that completely depends on the auth service for login. It never stores passwords or generates tokens on its own. It just asks the auth service for verification
 
 **3. Frontend** (port 3000) - A simple HTML page with register, login and dashboard.
 
 I also set up two separate PostgreSQL databases, one for each service.
 
-## Why two services?
-
-SARC has many portals like ASMP, ILP, Alumination, Shadow Program etc. Instead of every portal having its own login system, there is one central login. This is called SSO (Single Sign-On). This assignment mirrors that exact requirement.
 
 ## How does it work?
 
@@ -40,7 +37,6 @@ SARC has many portals like ASMP, ILP, Alumination, Shadow Program etc. Instead o
 ### Using Docker (easiest way)
 Make sure Docker Desktop is running, then just run:
 docker-compose up --build
-That's it! All services start automatically.
 
 - Auth Service: http://localhost:8000
 - Independent Site: http://localhost:8001
@@ -84,7 +80,7 @@ python -m http.server 3000
 | POST | /api/login/ | Login via independent site |
 | GET | /api/dashboard/ | View dashboard (needs token) |
 
-## Important rules I followed
+## Summary
 - Passwords are ONLY stored in the auth service database
 - Independent site NEVER stores or generates passwords or tokens
 - Every protected request must include Authorization: Bearer token
@@ -95,4 +91,3 @@ python -m http.server 3000
 - Auth: JWT tokens via djangorestframework-simplejwt
 - Database: PostgreSQL with one database per service
 - Containerization: Docker + Docker Compose
-- CI/CD: GitHub Actions
