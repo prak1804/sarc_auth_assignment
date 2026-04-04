@@ -1,0 +1,82 @@
+services:
+  auth_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  indie_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: indie_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - indie_db_data:/var/lib/postgresql/data
+
+  authservice:
+    build:
+      context: ./auth_service
+    environment:
+      SECRET_KEY: django-insecure-auth-service-secret-key-change-in-prod
+      DEBUG: "true"
+      ALLOWED_HOSTS: "authservice,localhost,127.0.0.1"
+      AUTH_DB_HOST: auth_db
+      AUTH_DB_PORT: "5432"
+      AUTH_DB_NAME: auth_db
+      AUTH_DB_USER: postgres
+      AUTH_DB_PASSWORD: postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth_db
+    volumes:
+      - ./auth_service:/app
+
+  independent_site:
+    build:
+      context: ./independent_site
+    environment:
+      SECRET_KEY: django-insecure-indie-site-secret-key-change-in-prod
+      DEBUG: "true"
+      ALLOWED_HOSTS: "*"
+      INDIE_DB_HOST: indie_db
+      INDIE_DB_PORT: "5432"
+      INDIE_DB_NAME: indie_db
+      INDIE_DB_USER: postgres
+      INDIE_DB_PASSWORD: postgres
+      CENTRAL_AUTH_SERVICE_URL: http://authservice:8000
+    ports:
+      - "8001:8001"
+    depends_on:
+      - indie_db
+      - authservice
+    volumes:
+      - ./independent_site:/app
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      REACT_APP_AUTH_SERVICE_URL: http://localhost:8000
+      REACT_APP_INDIE_SERVICE_URL: http://localhost:8001
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - authservice
+      - independent_site
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  auth_db_data:
+  indie_db_data:
