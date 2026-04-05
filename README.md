@@ -71,13 +71,12 @@ python -m http.server 3000
 |--------|-----|--------------|
 | POST | /api/auth/register/ | Register a new user |
 | POST | /api/auth/login/ | Login and get JWT token |
-| GET | /api/auth/verify-token/ | Check if a token is valid |
+| GET | /api/auth/verify/ | Check if a token is valid |
 
 ### Independent Site (port 8001)
 | Method | URL | What it does |
 |--------|-----|--------------|
 | POST | /api/register/ | Register via independent site |
-| POST | /api/login/ | Login via independent site |
 | GET | /api/dashboard/ | View dashboard (needs token) |
 
 ## Summary
